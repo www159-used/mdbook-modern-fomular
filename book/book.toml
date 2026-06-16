@@ -1,0 +1,13 @@
+[book]
+title = "mdbook-modern-fomular"
+authors = ["www159"]
+language = "zh"
+src = "src"
+
+[preprocessor.modern-fomular]
+after = ["links"]
+
+[output.html]
+site-url = "/mdbook-modern-fomular/"
+git-repository-url = "https://github.com/www159-used/mdbook-modern-fomular"
+edit-url-template = "https://github.com/www159-used/mdbook-modern-fomular/edit/master/book/{path}"

@@ -1,0 +1,25 @@
+[package]
+name = "mdbook-modern-fomular"
+version = "0.0.0"
+authors = ["www159 <2107795244@qq.com>"]
+edition = "2021"
+description = "mdBook preprocessor that renders LaTeX math with KaTeX."
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/www159-used/mdbook-modern-fomular"
+homepage = "https://www159-used.github.io/mdbook-modern-fomular/"
+documentation = "https://www159-used.github.io/mdbook-modern-fomular/"
+
+[[bin]]
+name = "mdbook-modern-fomular"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5.53", features = ["cargo"] }
+katex = { version = "0.4.6", default-features = false, features = ["quick-js"] }
+mdbook-preprocessor = "0.5"
+semver = "1.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+toml = "0.9.8"
+log = "0.4"
+env_logger = "0.11"
