@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-modern-fomular"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["www159 <2107795244@qq.com>"]
 edition = "2021"
 description = "mdBook preprocessor that renders LaTeX math with KaTeX."
