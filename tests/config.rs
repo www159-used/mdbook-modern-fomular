@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use mdbook_modern_fomular::config;
 use mdbook_modern_fomular::Config;
 
-use common::outputs_with;
+use common::{assert_same_katex_html, outputs_with};
 
 #[test]
 fn macro_file_loading() {
@@ -33,12 +33,13 @@ fn macros_without_argument() {
     macros.insert(String::from(r"\grad"), String::from(r"\nabla"));
     let raw_content_no_macro = r"Some text, $\nabla f(x) \in \mathbb{R}^n$, and more text.";
     let raw_content_macro = r"Some text, $\grad f(x) \in \mathbb{R}^n$, and more text.";
+    let cfg = Config::default();
     let (_, rendered) = outputs_with(
         &[raw_content_macro, raw_content_no_macro],
         macros,
-        Config::default(),
+        &cfg,
     );
-    assert_eq!(rendered[0], rendered[1]);
+    assert_same_katex_html(&rendered[0], &rendered[1]);
 }
 
 #[test]
@@ -47,10 +48,11 @@ fn macros_with_argument() {
     macros.insert(String::from(r"\R"), String::from(r"\mathbb{R}^#1"));
     let raw_content_no_macro = r"Some text, $\nabla f(x) \in \mathbb{R}^1$, and more text.";
     let raw_content_macro = r"Some text, $\nabla f(x) \in \R{1}$, and more text.";
+    let cfg = Config::default();
     let (_, rendered) = outputs_with(
         &[raw_content_macro, raw_content_no_macro],
         macros,
-        Config::default(),
+        &cfg,
     );
-    assert_eq!(rendered[0], rendered[1]);
+    assert_same_katex_html(&rendered[0], &rendered[1]);
 }

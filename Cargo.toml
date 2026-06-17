@@ -15,9 +15,8 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.53", features = ["cargo"] }
-katex = { version = "0.4.6", default-features = false, features = ["quick-js"] }
+katex-rs = "0.2.4"
 mdbook-preprocessor = "0.5"
-semver = "1.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 toml = "0.9.8"

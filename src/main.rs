@@ -4,13 +4,11 @@ use std::io;
 use std::process;
 
 use clap::{crate_version, Arg, ArgMatches, Command};
-use log::warn;
 use mdbook_modern_fomular::{init_logger, FomularPreprocessor};
 use mdbook_preprocessor::errors::{Error, Result};
 use mdbook_preprocessor::{parse_input, Preprocessor};
-use semver::{Version, VersionReq};
 
-use mdbook_modern_fomular::constants::{MDBOOK_COMPAT, PREPROCESSOR_NAME};
+use mdbook_modern_fomular::constants::PREPROCESSOR_NAME;
 
 const BIN_NAME: &str = "mdbook-modern-fomular";
 
@@ -59,28 +57,9 @@ fn handle_supports(processor: &dyn Preprocessor, args: &ArgMatches) -> Result<()
 
 fn handle_preprocess(processor: &dyn Preprocessor) -> Result<()> {
     let (ctx, book) = parse_input(io::stdin())?;
-    warn_on_incompatible_mdbook(&ctx.mdbook_version);
-
     let processed = processor.run(&ctx, book)?;
     serde_json::to_writer(io::stdout(), &processed)?;
     Ok(())
-}
-
-fn warn_on_incompatible_mdbook(version: &str) {
-    let Ok(book_version) = Version::parse(version) else {
-        warn!("could not parse mdbook version `{version}`");
-        return;
-    };
-    let Ok(requirement) = VersionReq::parse(MDBOOK_COMPAT) else {
-        return;
-    };
-
-    if !requirement.matches(&book_version) {
-        warn!(
-            "mdbook-{PREPROCESSOR_NAME} requires mdbook {MDBOOK_COMPAT}, \
-             but was invoked by mdbook v{version}"
-        );
-    }
 }
 
 #[cfg(test)]

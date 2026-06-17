@@ -1,12 +1,11 @@
 //! Render math within a single chapter.
 
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::Path;
 
-use crate::config::{Config, RenderOptions};
+use crate::config::{self, Config, RenderOptions};
 use crate::constants::KATEX_STYLESHEET;
-use crate::katex::render_math;
+use crate::katex::Engine;
 use crate::scan::{ScanEvent, Scanner};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -20,25 +19,20 @@ pub enum Segment<'source> {
 pub struct RenderSetup {
     options: RenderOptions,
     css: &'static str,
-    inline_opts: katex::Opts,
-    display_opts: katex::Opts,
+    engine: Engine,
 }
 
 impl RenderSetup {
     pub fn from_config<P: AsRef<Path>>(config: &Config, book_root: P) -> Self {
-        Self::build(config, config.katex_opts(book_root))
+        let macros = config::load_macros(book_root, &config.macros);
+        Self::from_macros(config, macros)
     }
 
     pub fn from_macros(config: &Config, macros: HashMap<String, String>) -> Self {
-        Self::build(config, config.katex_opts_from_macros(macros))
-    }
-
-    fn build(config: &Config, opts: (katex::Opts, katex::Opts)) -> Self {
         Self {
             options: config.render_options(),
             css: stylesheet(config),
-            inline_opts: opts.0,
-            display_opts: opts.1,
+            engine: Engine::from_macros(config, &macros),
         }
     }
 
@@ -47,13 +41,25 @@ impl RenderSetup {
     }
 
     pub fn render(&self, source: &str) -> String {
-        render(
-            source,
-            &self.options,
-            self.css,
-            &self.inline_opts,
-            &self.display_opts,
-        )
+        let mut output = String::from(self.css);
+        for segment in segments(source, &self.options) {
+            match segment {
+                Segment::Text(text) => output.push_str(text),
+                Segment::Inline(expr) => output.push_str(&self.engine.render(
+                    expr,
+                    false,
+                    &self.options.inline_delimiter,
+                    self.options.include_src,
+                )),
+                Segment::Display(expr) => output.push_str(&self.engine.render(
+                    expr,
+                    true,
+                    &self.options.display_delimiter,
+                    self.options.include_src,
+                )),
+            }
+        }
+        output
     }
 }
 
@@ -88,38 +94,7 @@ pub fn segments<'source>(source: &'source str, options: &RenderOptions) -> Vec<S
     out
 }
 
-pub fn render(
-    source: &str,
-    options: &RenderOptions,
-    css: &str,
-    inline_opts: &katex::Opts,
-    display_opts: &katex::Opts,
-) -> String {
-    let mut output = String::from(css);
-    output.push_str(
-        &segments(source, options)
-            .into_iter()
-            .map(|segment| match segment {
-                Segment::Text(text) => Cow::Borrowed(text),
-                Segment::Inline(expr) => Cow::Owned(render_math(
-                    expr,
-                    inline_opts,
-                    &options.inline_delimiter,
-                    options.include_src,
-                )),
-                Segment::Display(expr) => Cow::Owned(render_math(
-                    expr,
-                    display_opts,
-                    &options.display_delimiter,
-                    options.include_src,
-                )),
-            })
-            .collect::<String>(),
-    );
-    output
-}
-
-pub fn stylesheet(config: &Config) -> &'static str {
+fn stylesheet(config: &Config) -> &'static str {
     if config.no_css {
         ""
     } else {

@@ -1,8 +1,8 @@
 # 简介
 
-**mdbook-modern-fomular** 是一个 [mdBook](https://rust-lang.github.io/mdBook/) 预处理器，在 `mdbook build` 阶段把 Markdown 里的 LaTeX 数学公式用 [KaTeX](https://katex.org/) 渲染成 HTML。
+**mdbook-modern-fomular** 是一个 [mdBook](https://rust-lang.github.io/mdBook/) 预处理器，在 `mdbook build` 阶段把 Markdown 里的 LaTeX 数学公式用 [katex-rs](https://github.com/katex-rs/katex-rs) 渲染成 HTML。
 
-与在浏览器里用 JavaScript 渲染不同，本工具在构建时完成渲染，生成的静态站点无需额外脚本即可显示公式。
+与在浏览器里用 JavaScript 渲染不同，本工具在构建时用 **原生 Rust 版 KaTeX** 完成渲染，不依赖 QuickJS，生成的静态站点无需额外脚本即可显示公式。
 
 ## 特点
 
